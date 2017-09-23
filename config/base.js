@@ -20,7 +20,8 @@ module.exports = {
     alias: {
       'pixi': pixi,
       'p2': p2,
-      'phaser': phaser
+      'phaser': phaser,
+      '@': path.resolve(__dirname, '..', 'src')
     },
     extensions: ['.js', '.less']
   },

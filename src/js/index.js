@@ -8,21 +8,33 @@
  */
 
 /**
- * require base libray of Phaser
+ * import base libray of Phaser
  */
-require('pixi')
-require('p2')
+import 'pixi'
+import 'p2'
 
 /**
- * require base style file
+ * import base style file
  */
-require('normalize.css')
-require('../style/index.less')
+import 'normalize.css'
+import '../style/index.less'
 
 /**
- * [Phaser Game Engine]
+ * Phaser Game Engine
  */
-const Phaser = require('phaser')
+import Phaser from 'phaser'
+
+/**
+ * add plugins
+ */
+import 'phaser-plugin-advanced-timing'
+import 'phaser-plugin-scene-graph'
+import '../plugins/phaser-plugin-save-cpu.js'
+
+/**
+ * import Scenes
+ */
+import WelcomeScene from './scenes/welcome.js'
 
 /**
  * basic data
@@ -32,13 +44,39 @@ var gameDomStyle = gameDom.getBoundingClientRect()
 
 
 var game = new Phaser.Game(
-    gameDomStyle.width,
-    gameDomStyle.height,
-    'game',
-    Phaser.AUTO,
-    {
-      preload: function(){},
-      create: function(){},
-      update: function(){}
-    }
-  )
+  gameDomStyle.width,
+  gameDomStyle.height,
+  Phaser.AUTO,
+  gameDom, {
+    init: function() {
+      var plugins = game.plugins,
+        debug = game.debug
+        // add plugins
+        // save cpu plugin for static display
+      plugins.add(Phaser.Plugin.SaveCPU)
+
+      if (process.env.NODE_ENV == 'dev') {
+        plugins.add(Phaser.Plugin.AdvancedTiming, {
+          mode: 'graph'
+        })
+        debug.gameInfo(0, 140)
+
+        // print the display tree
+        plugins.add(Phaser.Plugin.SceneGraph)
+      }
+    },
+    preload: function() {},
+    create: function() {
+      var welcomeScene = new WelcomeScene(game)
+        // add welcomeScene to stage
+      game.stage.addChild(welcomeScene)
+    },
+    render: function() {
+      if (process.env.NODE_ENV == 'dev') {
+        var debug = game.debug
+        debug.renderGraph(game.stage, game.width - 300, 20, debug.font, debug.lineHeight)
+      }
+    },
+    update: function() {}
+  }
+)
